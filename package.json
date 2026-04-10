@@ -1,0 +1,36 @@
+{
+  "name": "playsafe-mcp",
+  "version": "1.0.0",
+  "description": "When using AI agents to explore websites, there is no guarantee that they won't interact with unsafe elements. Playsafe allows sensitive or dangerous elements to be masked from the agent so that they don't know they exist and aren't able to interact with them",
+  "main": "dist/index.js",
+  "bin": {
+    "playsafe-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steveofficer/playsafe-mcp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/steveofficer/playsafe-mcp/issues"
+  },
+  "homepage": "https://github.com/steveofficer/playsafe-mcp#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "playwright": "^1.59.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.2"
+  }
+}
