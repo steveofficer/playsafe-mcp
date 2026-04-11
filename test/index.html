@@ -1,0 +1,25 @@
+<!doctype HTML>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <script>
+            function clickHandler() {
+                
+                const passwordInput = document.querySelector('input[type="password"]');
+                if (passwordInput.value === "") {
+                    document.write("Password cannot be empty");
+                } else {
+                    document.write("Login successful");
+                }
+            }
+        </script>
+
+        <form>
+                <input type="text" name="username" placeholder="Username">
+                <input type="password" name="password" placeholder="Password">
+                <button type="submit" onclick="clickHandler()">Login</button>
+        </form>
+    </body>
+</html>
