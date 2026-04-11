@@ -1,7 +1,7 @@
 # Extract parseMaskedSelectors to src/cli.ts
 
 ## Status
-pending
+completed
 
 ## Priority
 high

@@ -1,7 +1,7 @@
 # Unit Tests — parseMaskedSelectors
 
 ## Status
-pending
+completed
 
 ## Priority
 high

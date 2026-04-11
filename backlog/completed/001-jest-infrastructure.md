@@ -1,7 +1,7 @@
 # Jest Infrastructure Setup
 
 ## Status
-pending
+completed
 
 ## Priority
 high
