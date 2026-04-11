@@ -63,7 +63,7 @@ export async function hideMaskedElements(
   return async () => {
     await styleHandle
       .evaluate((el) => {
-        el.remove();
+        (el as Element).remove();
       })
       .catch(() => {});
   };
