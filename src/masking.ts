@@ -54,19 +54,17 @@ export async function hideMaskedElements(
     return async () => {};
   }
 
-  const styleId = `playsafe-mask-${Date.now()}`;
   const css = maskedSelectors
     .map((sel) => `${sel} { visibility: hidden !important; pointer-events: none !important; }`)
     .join('\n');
 
-  await page.addStyleTag({ content: css, id: styleId } as Parameters<Page['addStyleTag']>[0]);
+  const styleHandle = await page.addStyleTag({ content: css });
 
   return async () => {
-    await page
-      .evaluate((id: string) => {
-        const el = document.getElementById(id);
-        if (el) el.remove();
-      }, styleId)
+    await styleHandle
+      .evaluate((el) => {
+        el.remove();
+      })
       .catch(() => {});
   };
 }
