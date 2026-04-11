@@ -205,7 +205,7 @@ export function registerTools(server: McpServer, maskedSelectors: string[]): voi
   // ─── wait_for_selector ───────────────────────────────────────────────────────
   server.tool(
     'browser_wait_for_selector',
-    'Wait for an element matching a CSS selector to appear in the DOM. Blocked for masked selectors.',
+    'Wait for an element matching a CSS selector to appear in the DOM. Returns an error if the selector targets a masked element.',
     {
       selector: z.string().describe('CSS selector to wait for'),
       timeout: z
@@ -215,22 +215,23 @@ export function registerTools(server: McpServer, maskedSelectors: string[]): voi
     },
     async ({ selector, timeout }) => {
       const page = await getPage();
-      // Prevent probing for masked elements by checking the selector upfront
-      const isMaskedSelector = maskedSelectors.some((masked) => {
-        try {
-          // Block if the requested selector is identical to, or a sub-selector of, a masked selector
-          return selector === masked || selector.includes(masked) || masked.includes(selector);
-        } catch {
-          return false;
-        }
-      });
-      if (isMaskedSelector) {
+      // Block exact matches to masked selectors immediately (before waiting)
+      if (maskedSelectors.includes(selector)) {
         return {
           content: [{ type: 'text', text: `Interaction blocked: the selector "${selector}" targets a masked element.` }],
           isError: true,
         };
       }
       await page.waitForSelector(selector, { timeout: timeout ?? 30000 });
+      // After the element appears, verify it is not masked
+      try {
+        await assertNotMasked(page, selector, maskedSelectors);
+      } catch (err) {
+        return {
+          content: [{ type: 'text', text: String(err instanceof Error ? err.message : err) }],
+          isError: true,
+        };
+      }
       return { content: [{ type: 'text', text: `Element appeared: ${selector}` }] };
     }
   );
