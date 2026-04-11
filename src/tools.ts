@@ -48,7 +48,7 @@ export function registerTools(server: McpServer, maskedSelectors: string[]): voi
   // ─── snapshot ────────────────────────────────────────────────────────────────
   server.tool(
     'browser_snapshot',
-    'Get a structured text snapshot of the current page (role, name, and text of interactive elements). Masked elements are excluded.',
+    'Get a structured text snapshot of the current page (visible DOM elements with role/tag, name, text, and nested children). Masked elements are excluded.',
     {},
     async () => {
       const page = await getPage();
