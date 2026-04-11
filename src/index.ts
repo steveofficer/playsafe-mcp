@@ -3,25 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { closeBrowser } from './browser.js';
 import { registerTools } from './tools.js';
-
-/**
- * Parse --mask <selector> arguments from argv.
- * Multiple --mask flags are supported, e.g.:
- *   playsafe-mcp --mask ".dangerous-btn" --mask "#admin-panel"
- */
-function parseMaskedSelectors(argv: string[]): string[] {
-  const masked: string[] = [];
-  for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--mask' && i + 1 < argv.length) {
-      const selector = argv[i + 1].trim();
-      if (selector) {
-        masked.push(selector);
-      }
-      i++; // skip next arg (the selector value)
-    }
-  }
-  return masked;
-}
+import { parseMaskedSelectors } from './cli.js';
 
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);

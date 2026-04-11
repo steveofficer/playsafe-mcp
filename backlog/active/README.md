@@ -23,9 +23,9 @@ Tasks with no mutual dependencies that can execute concurrently (max 3 per batch
 
 | # | Task | Milestone | Priority | Status | Dependencies |
 |---|------|-----------|----------|--------|--------------|
-| 001 | [Jest infrastructure setup](001-jest-infrastructure.md) | M1 | high | pending | None |
-| 002 | [Extract parseMaskedSelectors to src/cli.ts](002-extract-parse-masked-selectors.md) | M1 | high | pending | None |
-| 003 | [Unit tests — parseMaskedSelectors](003-unit-tests-parse-masked-selectors.md) | M1 | high | pending | 001, 002 |
+| 001 | [Jest infrastructure setup](001-jest-infrastructure.md) | M1 | high | **completed** | None |
+| 002 | [Extract parseMaskedSelectors to src/cli.ts](002-extract-parse-masked-selectors.md) | M1 | high | **completed** | None |
+| 003 | [Unit tests — parseMaskedSelectors](003-unit-tests-parse-masked-selectors.md) | M1 | high | **completed** | 001, 002 |
 | 004 | [HTTP server test helper](004-http-server-test-helper.md) | M2 | high | pending | 001 |
 | 005 | [MCP client test helper](005-mcp-client-test-helper.md) | M2 | high | pending | 001 |
 | 006 | [HTML test fixtures](006-html-test-fixtures.md) | M2 | medium | pending | None |
