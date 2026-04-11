@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Page</title>
+    <style>
+      body { font-family: sans-serif; padding: 1.5rem; }
+      section { margin-bottom: 1.5rem; }
+      h2 { margin-bottom: 0.5rem; }
+      #admin-panel { border: 2px solid #c00; padding: 1rem; background: #fff5f5; }
+      #hover-target { display: inline-block; padding: 0.5rem 1rem; background: #e8f0fe; border: 1px solid #aac; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <h1>Test Page</h1>
+    <p>This fixture is used by the integration test suite.</p>
+
+    <!-- Login form -------------------------------------------------------- -->
+    <section>
+      <h2>Login</h2>
+      <input id="username" type="text"     placeholder="Username" />
+      <input id="password" type="password" placeholder="Password" />
+      <button id="login-btn">Login</button>
+    </section>
+
+    <!-- Dangerous element ------------------------------------------------- -->
+    <!-- Masked in masking tests via selector: .dangerous-btn             -->
+    <section>
+      <h2>Dangerous Action</h2>
+      <button class="dangerous-btn">Danger</button>
+    </section>
+
+    <!-- Admin panel ------------------------------------------------------- -->
+    <!-- Entire panel is masked in masking tests via selector: #admin-panel -->
+    <section id="admin-panel">
+      <h2>Admin Panel</h2>
+      <button class="admin-action">Admin Action</button>
+      <input  id="admin-input"  type="text" placeholder="Admin input" />
+      <select id="admin-select">
+        <option value="view">View</option>
+        <option value="edit">Edit</option>
+        <option value="delete">Delete</option>
+      </select>
+    </section>
+
+    <!-- Color selector (outside admin panel) ------------------------------ -->
+    <section>
+      <h2>Color</h2>
+      <select id="color-select">
+        <option value="red">Red</option>
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
+      </select>
+    </section>
+
+    <!-- Hover target ------------------------------------------------------ -->
+    <section>
+      <h2>Hover</h2>
+      <div id="hover-target">Hover over me</div>
+    </section>
+
+    <!-- Navigation -------------------------------------------------------- -->
+    <section>
+      <h2>Navigation</h2>
+      <a href="second-page.html">Go to second page</a>
+    </section>
+  </body>
+</html>
