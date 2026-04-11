@@ -74,7 +74,10 @@ export function startServer(): Promise<TestServer> {
 
     // Bind to port 0 — the OS will assign a free ephemeral port.
     server.listen(0, '127.0.0.1', () => {
+      // Replace the startup error handler with a no-op so Node never treats
+      // a late 'error' event as unhandled (which would crash the process).
       server.removeListener('error', reject);
+      server.on('error', () => { /* post-bind errors are non-fatal in tests */ });
       const addr = server.address() as net.AddressInfo;
 
       const stop = (): Promise<void> =>

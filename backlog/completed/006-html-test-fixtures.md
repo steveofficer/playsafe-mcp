@@ -41,7 +41,7 @@ The existing `test/index.html` may remain in place (it is not referenced by any 
 or be moved to `test/fixtures/` — leave it as-is unless it conflicts.
 
 ## Acceptance Criteria
-- [x] Given `test/fixtures/test-page.html`, when parsed as HTML, then all eight required
+- [x] Given `test/fixtures/test-page.html`, when parsed as HTML, then all ten required
   selectors (`#username`, `#password`, `#login-btn`, `.dangerous-btn`, `#admin-panel`,
   `.admin-action`, `#admin-input`, `#admin-select`, `#color-select`, `#hover-target`)
   resolve to exactly one element each.

@@ -80,10 +80,12 @@ describe('M1: startMcpClient() – no mask selectors', () => {
     // Act
     const result = await handle.client.listTools();
 
-    // Assert – every tool must at least have a non-empty name
+    // Assert – every tool must have non-empty name and description fields
     for (const tool of result.tools) {
       expect(typeof tool.name).toBe('string');
       expect(tool.name.length).toBeGreaterThan(0);
+      expect(typeof tool.description).toBe('string');
+      expect((tool.description as string).length).toBeGreaterThan(0);
     }
   });
 });

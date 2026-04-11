@@ -28,11 +28,16 @@ export interface McpTestClient {
  * resolves immediately.
  */
 function waitForExit(proc: childProcess.ChildProcess): Promise<void> {
-  if (proc.exitCode !== null || proc.signalCode !== null) {
-    return Promise.resolve();
-  }
   return new Promise<void>((resolve) => {
-    proc.once('close', () => resolve());
+    const onClose = () => resolve();
+    proc.once('close', onClose);
+
+    // Re-check after attaching the listener to avoid a race where the
+    // process exits between an initial check and the listener registration.
+    if (proc.exitCode !== null || proc.signalCode !== null) {
+      proc.removeListener('close', onClose);
+      resolve();
+    }
   });
 }
 
