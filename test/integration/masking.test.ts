@@ -86,7 +86,7 @@ describe('M2: browser_click on a descendant of a masked container', () => {
    * M2: `.admin-action` lives inside `#admin-panel`, which is masked.
    * Clicking it must be rejected with isError: true (descendant blocking).
    */
-  test('M2: returns isError:true when clicking .admin-action inside #admin-panel', async () => {
+  test('M2: returns isError:true and "masked for safety" when clicking .admin-action inside #admin-panel', async () => {
     // Arrange
     const selector = '.admin-action';
 
@@ -95,6 +95,9 @@ describe('M2: browser_click on a descendant of a masked container', () => {
 
     // Assert
     expect(result.isError).toBe(true);
+    expect((result.content as Array<{ type: string; text: string }>)[0].text).toContain(
+      'masked for safety'
+    );
   });
 });
 
@@ -258,8 +261,11 @@ describe('M9: browser_get_page_content excludes masked elements', () => {
     // Act
     const result = await client.callTool({ name: 'browser_get_page_content', arguments: {} });
 
-    // Arrange
+    // Assert – verify the tool call succeeded before inspecting content
+    expect(result.isError).toBeFalsy();
+
     const html = (result.content as Array<{ type: string; text: string }>)[0].text;
+    expect((result.content as Array<{ type: string }>)[0].type).toBe('text');
 
     // Assert – check that the actual element markup is absent. The masked elements
     // are removed from the DOM clone, so their element tags should not appear.
