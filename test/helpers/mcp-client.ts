@@ -7,6 +7,7 @@
  */
 
 import * as path from 'path';
+import * as fs from 'fs';
 import * as childProcess from 'child_process';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
@@ -80,6 +81,15 @@ async function killAndWait(
 }
 
 export async function startMcpClient(maskSelectors?: string[]): Promise<McpTestClient> {
+  // Fast-fail if the build artefact is missing – produces a clear error
+  // regardless of which test file calls this helper first.
+  if (!fs.existsSync(DIST_INDEX)) {
+    throw new Error(
+      `dist/index.js not found at ${DIST_INDEX}. ` +
+        'Run "npm run build" before executing the integration suite.'
+    );
+  }
+
   // Convert mask selectors to ['--mask', selector] pairs
   const maskArgs: string[] = (maskSelectors ?? []).flatMap((selector) => ['--mask', selector]);
 
