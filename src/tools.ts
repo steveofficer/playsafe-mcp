@@ -5,52 +5,72 @@ import { assertNotMasked, getFilteredContent, hideMaskedElements } from './maski
 
 export function registerTools(server: McpServer, maskedSelectors: string[]): void {
   // ─── navigate ───────────────────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     'browser_navigate',
-    'Navigate the browser to the given URL.',
-    { url: z.string().url().describe('The URL to navigate to') },
+    {
+        description: 'Navigate the browser to the given URL.',
+        inputSchema: {
+            url: z
+                .url()
+                .refine((u) => /^https?:\/\//i.test(u), { message: 'Only http and https URLs are allowed' })
+                .describe('The URL to navigate to'),
+            }
+    },
     async ({ url }) => {
-      const page = await getPage();
-      await page.goto(url, { waitUntil: 'domcontentloaded' });
-      const title = await page.title();
-      return {
-        content: [{ type: 'text', text: `Navigated to ${url}\nPage title: ${title}` }],
-      };
+      try {
+        const page = await getPage();
+        await page.goto(url, { waitUntil: 'domcontentloaded' });
+        const title = await page.title();
+        return {
+          content: [{ type: 'text', text: `Navigated to ${url}\nPage title: ${title}` }],
+        };
+      } catch (err) {
+        return { content: [{ type: 'text', text: String(err instanceof Error ? err.message : err) }], isError: true };
+      }
     }
   );
 
   // ─── screenshot ──────────────────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     'browser_screenshot',
-    'Take a screenshot of the current page. Masked elements are hidden.',
-    {},
+    {
+        description: 'Take a screenshot of the current page. Masked elements are hidden.',
+        inputSchema: {}
+    },
     async () => {
-      const page = await getPage();
-      const cleanup = await hideMaskedElements(page, maskedSelectors);
-      let screenshot: Buffer;
       try {
-        screenshot = await page.screenshot({ type: 'png', fullPage: false });
-      } finally {
-        await cleanup();
+        const page = await getPage();
+        const cleanup = await hideMaskedElements(page, maskedSelectors);
+        let screenshot: Buffer;
+        try {
+          screenshot = await page.screenshot({ type: 'png', fullPage: false });
+        } finally {
+          await cleanup();
+        }
+        return {
+          content: [
+            {
+              type: 'image',
+              data: screenshot.toString('base64'),
+              mimeType: 'image/png',
+            },
+          ],
+        };
+      } catch (err) {
+        return { content: [{ type: 'text', text: String(err instanceof Error ? err.message : err) }], isError: true };
       }
-      return {
-        content: [
-          {
-            type: 'image',
-            data: screenshot.toString('base64'),
-            mimeType: 'image/png',
-          },
-        ],
-      };
     }
   );
 
   // ─── snapshot ────────────────────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     'browser_snapshot',
-    'Get a structured text snapshot of the current page (visible DOM elements with role/tag, name, text, and nested children). Masked elements are excluded.',
-    {},
+    {
+        description: 'Get a structured text snapshot of the current page (visible DOM elements with role/tag, name, text, and nested children). Masked elements are excluded.',
+        inputSchema: {}
+    },
     async () => {
+      try {
       const page = await getPage();
       const cleanup = await hideMaskedElements(page, maskedSelectors);
       let snapshot: string;
@@ -72,7 +92,6 @@ export function registerTools(server: McpServer, maskedSelectors: string[]): voi
               el.getAttribute('aria-label') ??
               el.getAttribute('alt') ??
               el.getAttribute('placeholder') ??
-              (el as HTMLInputElement).value ??
               '';
             const text = (el as HTMLElement).innerText?.trim() ?? '';
 
@@ -91,26 +110,39 @@ export function registerTools(server: McpServer, maskedSelectors: string[]): voi
         await cleanup();
       }
       return { content: [{ type: 'text', text: snapshot }] };
+      } catch (err) {
+        return { content: [{ type: 'text', text: String(err instanceof Error ? err.message : err) }], isError: true };
+      }
     }
   );
 
   // ─── get_page_content ────────────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     'browser_get_page_content',
-    'Get the HTML source of the current page. Masked elements are removed from the returned HTML.',
-    {},
+    {
+        description: 'Get the HTML source of the current page. Masked elements are removed from the returned HTML.',
+        inputSchema: {}
+    },
     async () => {
-      const page = await getPage();
-      const html = await getFilteredContent(page, maskedSelectors);
-      return { content: [{ type: 'text', text: html }] };
+      try {
+        const page = await getPage();
+        const html = await getFilteredContent(page, maskedSelectors);
+        return { content: [{ type: 'text', text: html }] };
+      } catch (err) {
+        return { content: [{ type: 'text', text: String(err instanceof Error ? err.message : err) }], isError: true };
+      }
     }
   );
 
   // ─── click ───────────────────────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     'browser_click',
-    'Click an element on the page identified by a CSS selector. Blocked for masked elements.',
-    { selector: z.string().describe('CSS selector of the element to click') },
+    {
+        description: 'Click an element on the page identified by a CSS selector. Blocked for masked elements.',
+        inputSchema: {
+            selector: z.string().describe('CSS selector of the element to click')
+        }
+    },
     async ({ selector }) => {
       const page = await getPage();
       try {
@@ -123,33 +155,15 @@ export function registerTools(server: McpServer, maskedSelectors: string[]): voi
     }
   );
 
-  // ─── type ────────────────────────────────────────────────────────────────────
-  server.tool(
-    'browser_type',
-    'Type text into an element identified by a CSS selector. Blocked for masked elements.',
-    {
-      selector: z.string().describe('CSS selector of the element to type into'),
-      text: z.string().describe('Text to type'),
-    },
-    async ({ selector, text }) => {
-      const page = await getPage();
-      try {
-        await assertNotMasked(page, selector, maskedSelectors);
-      } catch (err) {
-        return { content: [{ type: 'text', text: String(err instanceof Error ? err.message : err) }], isError: true };
-      }
-      await page.type(selector, text);
-      return { content: [{ type: 'text', text: `Typed "${text}" into element: ${selector}` }] };
-    }
-  );
-
   // ─── fill ────────────────────────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     'browser_fill',
-    'Fill a form field with a value (replaces existing content). Blocked for masked elements.',
     {
-      selector: z.string().describe('CSS selector of the form field'),
-      value: z.string().describe('Value to fill'),
+        description: 'Fill a form field with a value (replaces existing content). Blocked for masked elements.',
+        inputSchema: {
+            selector: z.string().describe('CSS selector of the form field'),
+            value: z.string().describe('Value to fill'),
+        }
     },
     async ({ selector, value }) => {
       const page = await getPage();
@@ -159,17 +173,19 @@ export function registerTools(server: McpServer, maskedSelectors: string[]): voi
         return { content: [{ type: 'text', text: String(err instanceof Error ? err.message : err) }], isError: true };
       }
       await page.fill(selector, value);
-      return { content: [{ type: 'text', text: `Filled "${value}" into element: ${selector}` }] };
+      return { content: [{ type: 'text', text: `Filled element: ${selector}` }] };
     }
   );
 
   // ─── select_option ───────────────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     'browser_select_option',
-    'Select an option in a <select> element. Blocked for masked elements.',
     {
-      selector: z.string().describe('CSS selector of the <select> element'),
-      value: z.string().describe('Value of the option to select'),
+        description: 'Select an option in a <select> element. Blocked for masked elements.',
+        inputSchema: {
+            selector: z.string().describe('CSS selector of the <select> element'),
+            value: z.string().describe('Value of the option to select'),
+        }
     },
     async ({ selector, value }) => {
       const page = await getPage();
@@ -186,10 +202,14 @@ export function registerTools(server: McpServer, maskedSelectors: string[]): voi
   );
 
   // ─── hover ───────────────────────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     'browser_hover',
-    'Hover over an element identified by a CSS selector. Blocked for masked elements.',
-    { selector: z.string().describe('CSS selector of the element to hover over') },
+    {
+        description: 'Hover over an element identified by a CSS selector. Blocked for masked elements.',
+        inputSchema: {
+            selector: z.string().describe('CSS selector of the element to hover over')
+        }
+    },
     async ({ selector }) => {
       const page = await getPage();
       try {
@@ -203,56 +223,83 @@ export function registerTools(server: McpServer, maskedSelectors: string[]): voi
   );
 
   // ─── wait_for_selector ───────────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     'browser_wait_for_selector',
-    'Wait for an element matching a CSS selector to appear in the DOM. Returns an error if the selector targets a masked element.',
     {
-      selector: z.string().describe('CSS selector to wait for'),
-      timeout: z
-        .number()
-        .optional()
-        .describe('Maximum wait time in milliseconds (default: 30000)'),
+        description: 'Wait for an element matching a CSS selector to appear in the DOM. Returns an error if the selector targets a masked element.',
+        inputSchema: {
+            selector: z.string().describe('CSS selector to wait for'),
+            timeout: z
+                .number()
+                .optional()
+                .describe('Maximum wait time in milliseconds (default: 30000)'),
+        }
     },
     async ({ selector, timeout }) => {
-      const page = await getPage();
-      // Block exact matches to masked selectors immediately (before waiting)
-      if (maskedSelectors.includes(selector)) {
-        return {
-          content: [{ type: 'text', text: `Interaction blocked: the selector "${selector}" targets a masked element.` }],
-          isError: true,
-        };
-      }
-      await page.waitForSelector(selector, { timeout: timeout ?? 30000 });
-      // After the element appears, verify it is not masked
       try {
+        const page = await getPage();
+        await page.waitForSelector(selector, { timeout: timeout ?? 30000 });
         await assertNotMasked(page, selector, maskedSelectors);
+        return { content: [{ type: 'text', text: `Element appeared: ${selector}` }] };
       } catch (err) {
         return {
           content: [{ type: 'text', text: String(err instanceof Error ? err.message : err) }],
           isError: true,
         };
       }
-      return { content: [{ type: 'text', text: `Element appeared: ${selector}` }] };
     }
   );
 
   // ─── go_back ─────────────────────────────────────────────────────────────────
-  server.tool('browser_go_back', 'Navigate back in the browser history.', {}, async () => {
-    const page = await getPage();
-    await page.goBack();
-    return { content: [{ type: 'text', text: 'Navigated back' }] };
-  });
+  server.registerTool(
+    'browser_go_back',
+    {
+        description: 'Navigate back in the browser history.',
+        inputSchema: {}
+    },
+    async () => {
+      try {
+        const page = await getPage();
+        await page.goBack();
+        return { content: [{ type: 'text', text: 'Navigated back' }] };
+      } catch (err) {
+        return { content: [{ type: 'text', text: String(err instanceof Error ? err.message : err) }], isError: true };
+      }
+    }
+  );
 
   // ─── go_forward ──────────────────────────────────────────────────────────────
-  server.tool('browser_go_forward', 'Navigate forward in the browser history.', {}, async () => {
-    const page = await getPage();
-    await page.goForward();
-    return { content: [{ type: 'text', text: 'Navigated forward' }] };
-  });
+  server.registerTool(
+    'browser_go_forward',
+    {
+        description: 'Navigate forward in the browser history.',
+        inputSchema: {}
+    },
+    async () => {
+      try {
+        const page = await getPage();
+        await page.goForward();
+        return { content: [{ type: 'text', text: 'Navigated forward' }] };
+      } catch (err) {
+        return { content: [{ type: 'text', text: String(err instanceof Error ? err.message : err) }], isError: true };
+      }
+    }
+  );
 
   // ─── close ───────────────────────────────────────────────────────────────────
-  server.tool('browser_close', 'Close the browser and end the session.', {}, async () => {
-    await closeBrowser();
-    return { content: [{ type: 'text', text: 'Browser closed' }] };
-  });
+  server.registerTool(
+    'browser_close',
+    {
+        description: 'Close the browser and end the session.',
+        inputSchema: {}
+    },
+    async () => {
+      try {
+        await closeBrowser();
+        return { content: [{ type: 'text', text: 'Browser closed' }] };
+      } catch (err) {
+        return { content: [{ type: 'text', text: String(err instanceof Error ? err.message : err) }], isError: true };
+      }
+    }
+  );
 }

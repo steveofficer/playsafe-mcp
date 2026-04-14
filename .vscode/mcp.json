@@ -1,0 +1,10 @@
+{
+	"servers": {
+		"play": {
+			"type": "stdio",
+			"command": "node",
+			"args": ["dist/index.js"]
+		}
+	},
+	"inputs": []
+}

@@ -54,7 +54,8 @@ export async function hideMaskedElements(
     return async () => {};
   }
 
-  const css = maskedSelectors
+  const validSelectors = maskedSelectors.filter((sel) => !/{|}/.test(sel));
+  const css = validSelectors
     .map((sel) => `${sel} { visibility: hidden !important; pointer-events: none !important; }`)
     .join('\n');
 

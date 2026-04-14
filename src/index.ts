@@ -38,6 +38,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((err: unknown) => {
-  process.stderr.write(`[playsafe-mcp] Fatal error: ${err}\n`);
+  const msg = err instanceof Error ? (err.stack ?? err.message) : String(err);
+  process.stderr.write(`[playsafe-mcp] Fatal error: ${msg}\n`);
   process.exit(1);
 });

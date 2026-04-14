@@ -126,30 +126,6 @@ describe('M3: browser_click on an unmasked element', () => {
 });
 
 // ---------------------------------------------------------------------------
-// M4 – browser_type into a masked descendant is blocked
-// ---------------------------------------------------------------------------
-
-describe('M4: browser_type into a masked descendant', () => {
-  /**
-   * M4: `#admin-input` is inside `#admin-panel` (masked). Typing into it must
-   * return isError: true.
-   */
-  test('M4: returns isError:true when typing into #admin-input inside #admin-panel', async () => {
-    // Arrange
-    const selector = '#admin-input';
-
-    // Act
-    const result = await client.callTool({
-      name: 'browser_type',
-      arguments: { selector, text: 'hello' },
-    });
-
-    // Assert
-    expect(result.isError).toBe(true);
-  });
-});
-
-// ---------------------------------------------------------------------------
 // M5 – browser_fill into a masked descendant is blocked
 // ---------------------------------------------------------------------------
 
@@ -303,9 +279,9 @@ describe('M11: browser_wait_for_selector on an exact masked selector', () => {
   /**
    * M11: When the selector passed to browser_wait_for_selector exactly matches
    * a masked selector (`.dangerous-btn`), the tool must return isError: true
-   * with a message containing "masked element".
+   * with a message containing "masked for safety".
    */
-  test('M11: returns isError:true and "masked element" for .dangerous-btn', async () => {
+  test('M11: returns isError:true and "masked for safety" for .dangerous-btn', async () => {
     // Arrange
     const selector = '.dangerous-btn';
 
@@ -318,7 +294,7 @@ describe('M11: browser_wait_for_selector on an exact masked selector', () => {
     // Assert
     expect(result.isError).toBe(true);
     expect((result.content as Array<{ type: string; text: string }>)[0].text).toContain(
-      'masked element'
+      'masked for safety'
     );
   });
 });
@@ -347,29 +323,6 @@ describe('M12: browser_wait_for_selector on an unmasked selector', () => {
     expect((result.content as Array<{ type: string; text: string }>)[0].text).toContain(
       'Element appeared'
     );
-  });
-});
-
-// ---------------------------------------------------------------------------
-// M13 – browser_type into an unmasked input succeeds
-// ---------------------------------------------------------------------------
-
-describe('M13: browser_type into an unmasked input', () => {
-  /**
-   * M13: `#username` is not masked. Typing into it must succeed (isError falsy).
-   */
-  test('M13: isError is falsy when typing into #username', async () => {
-    // Arrange
-    const selector = '#username';
-
-    // Act
-    const result = await client.callTool({
-      name: 'browser_type',
-      arguments: { selector, text: 'testuser' },
-    });
-
-    // Assert
-    expect(result.isError).toBeFalsy();
   });
 });
 

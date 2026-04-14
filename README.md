@@ -1,4 +1,6 @@
-# playsafe-mcp
+# Playsafe-mcp
+
+![image](mascot.png)
 
 When using AI agents to explore websites, there is no guarantee that they won't interact with unsafe elements. **Playsafe** allows sensitive or dangerous elements to be masked from the agent so that they don't know they exist and aren't able to interact with them.
 
@@ -8,7 +10,7 @@ When using AI agents to explore websites, there is no guarantee that they won't 
 
 - **Hides** masked elements from screenshots and the page snapshot.
 - **Removes** masked elements from returned page HTML.
-- **Blocks** any interaction (click, type, fill, hover, select) that targets a masked element.
+- **Blocks** any interaction (click, fill, hover, select) that targets a masked element.
 
 ## Installation
 
@@ -49,7 +51,6 @@ Multiple `--mask` flags are supported. Standard CSS selectors are accepted (clas
 | `browser_snapshot` | Get a structured DOM snapshot (masked elements excluded) |
 | `browser_get_page_content` | Get full page HTML (masked elements removed) |
 | `browser_click` | Click an element (blocked for masked elements) |
-| `browser_type` | Type text into an element (blocked for masked elements) |
 | `browser_fill` | Fill a form field (blocked for masked elements) |
 | `browser_select_option` | Select a `<select>` option (blocked for masked elements) |
 | `browser_hover` | Hover over an element (blocked for masked elements) |

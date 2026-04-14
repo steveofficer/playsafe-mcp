@@ -6,7 +6,7 @@
  *
  * Each test is labelled M1–M4 and maps 1-to-1 to the acceptance criteria:
  *
- *  M1 – startMcpClient() connects and listTools() returns exactly 13 tools
+ *  M1 – startMcpClient() connects and listTools() returns exactly 12 tools
  *  M2 – startMcpClient([...mask args]) forwards args and starts without error
  *  M3 – disconnect() resolves cleanly within 5 seconds
  *  M4 – no orphan child processes remain after disconnect() completes
@@ -26,7 +26,7 @@ import { startMcpClient, McpTestClient } from '../helpers/mcp-client';
 const DIST_INDEX = path.resolve(__dirname, '../../dist/index.js');
 
 /** How many tools are expected to be registered by the server. */
-const EXPECTED_TOOL_COUNT = 13;
+const EXPECTED_TOOL_COUNT = 12;
 
 // ---------------------------------------------------------------------------
 // Suite-level pre-condition guard
@@ -43,7 +43,7 @@ beforeAll(() => {
 });
 
 // ---------------------------------------------------------------------------
-// M1 – listTools() returns exactly 13 tools
+// M1 – listTools() returns exactly 12 tools
 // ---------------------------------------------------------------------------
 
 describe('M1: startMcpClient() – no mask selectors', () => {
@@ -68,7 +68,7 @@ describe('M1: startMcpClient() – no mask selectors', () => {
     await expect(handle.client.listTools()).resolves.toBeDefined();
   });
 
-  test('M1: listTools() result contains exactly 13 tools', async () => {
+  test('M1: listTools() result contains exactly 12 tools', async () => {
     // Act
     const result = await handle.client.listTools();
 
@@ -112,7 +112,7 @@ describe('M2: startMcpClient([...selectors]) – with mask selectors', () => {
     expect(handle.client).toBeInstanceOf(Client);
   });
 
-  test('M2: listTools() still returns the same 13 tools when mask args are present', async () => {
+  test('M2: listTools() still returns the same 12 tools when mask args are present', async () => {
     // The mask args only affect runtime behaviour (blocking interactions);
     // the tool list itself must remain unchanged.
     const result = await handle.client.listTools();

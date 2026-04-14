@@ -18,7 +18,8 @@ export async function getPage(): Promise<Page> {
     page = await context.newPage();
   }
   if (!page) {
-    page = await context!.newPage();
+    if (!context) throw new Error('Browser context is not initialized');
+    page = await context.newPage();
   }
   return page;
 }
