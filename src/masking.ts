@@ -89,7 +89,9 @@ export async function getFilteredContent(
     const clone = document.documentElement.cloneNode(true) as HTMLElement;
     for (const sel of masked) {
       try {
-        clone.querySelectorAll(sel).forEach((el) => { el.remove(); });
+        clone.querySelectorAll(sel).forEach((el) => {
+          el.remove();
+        });
       } catch {
         // ignore invalid selectors
       }

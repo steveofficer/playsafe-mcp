@@ -1,4 +1,9 @@
-import { type Browser, type BrowserContext, type Page, chromium } from "playwright";
+import {
+  type Browser,
+  type BrowserContext,
+  type Page,
+  chromium,
+} from "playwright";
 
 let browser: Browser | null = null;
 let context: BrowserContext | null = null;

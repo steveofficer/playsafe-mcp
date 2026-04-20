@@ -1,7 +1,7 @@
 /**
  * Integration tests for interaction tools — interaction-tools.test.ts
  *
- * Covers six browser interaction tools end-to-end:
+ * Covers five browser interaction tools end-to-end:
  *   browser_click, browser_fill,
  *   browser_select_option, browser_hover, browser_wait_for_selector
  *

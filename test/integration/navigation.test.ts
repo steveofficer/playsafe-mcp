@@ -1,8 +1,8 @@
 /**
  * Integration tests for navigation tools — navigation.test.ts
  *
- * Covers four navigation tools end-to-end:
- *   browser_navigate, browser_go_back, browser_go_forward, browser_close
+ * Covers three navigation tools end-to-end:
+ *   browser_navigate, browser_traverse_history, browser_close
  *
  * The MCP server is started with NO mask arguments so that navigation
  * behaviour is tested in isolation, without any element-blocking side-effects.
@@ -10,8 +10,8 @@
  * Test IDs I1–I4 map 1-to-1 to the acceptance criteria table:
  *
  *   I1 – browser_navigate   → response text contains the URL and page title
- *   I2 – browser_go_back    → response text is "Navigated back", isError falsy
- *   I3 – browser_go_forward → response text is "Navigated forward", isError falsy
+ *   I2 – browser_traverse_history (back)    → response text is "Navigated back", isError falsy
+ *   I3 – browser_traverse_history (forward) → response text is "Navigated forward", isError falsy
  *   I4 – browser_close      → response text contains "Browser closed", isError falsy
  *
  * Tests I1–I4 are intentionally sequential: each test builds on the browser
@@ -66,7 +66,7 @@ afterAll(async () => {
 // Navigation tool tests – I1 through I4 (sequential, shared browser state)
 // ---------------------------------------------------------------------------
 
-describe("Navigation tools: browser_navigate, browser_go_back, browser_go_forward, browser_close", () => {
+describe("Navigation tools: browser_navigate, browser_traverse_history, browser_close", () => {
   // -------------------------------------------------------------------------
   // I1 – browser_navigate to test-page.html
   // -------------------------------------------------------------------------
@@ -98,17 +98,17 @@ describe("Navigation tools: browser_navigate, browser_go_back, browser_go_forwar
   });
 
   // -------------------------------------------------------------------------
-  // I2 – browser_go_back after navigating to a second page
+  // I2 – browser_traverse_history (back) after navigating to a second page
   // -------------------------------------------------------------------------
 
   /**
    * I2: Navigate to test-page.html, then to second-page.html, then call
-   * browser_go_back.  The response text must be "Navigated back" and isError
+   * browser_traverse_history with direction "back".  The response text must be "Navigated back" and isError
    * must be falsy.
    *
    * This test relies on the browser being open from I1.
    */
-  test('I2: browser_go_back returns "Navigated back" after navigating to a second page', async () => {
+  test('I2: browser_traverse_history (back) returns "Navigated back" after navigating to a second page', async () => {
     // Arrange – build up a two-entry history: test-page → second-page
     await client.callTool({
       name: "browser_navigate",
@@ -121,8 +121,8 @@ describe("Navigation tools: browser_navigate, browser_go_back, browser_go_forwar
 
     // Act
     const result = await client.callTool({
-      name: "browser_go_back",
-      arguments: {},
+      name: "browser_traverse_history",
+      arguments: { direction: "back" },
     });
 
     // Assert
@@ -133,15 +133,15 @@ describe("Navigation tools: browser_navigate, browser_go_back, browser_go_forwar
   });
 
   // -------------------------------------------------------------------------
-  // I3 – browser_go_forward after going back (continues from I2)
+  // I3 – browser_traverse_history (forward) after going back (continues from I2)
   // -------------------------------------------------------------------------
 
   /**
    * I3: After I2 the browser is on test-page.html with second-page.html one
-   * step forward in history.  Calling browser_go_forward must return
+   * step forward in history.  Calling browser_traverse_history with direction "forward" must return
    * "Navigated forward" and isError must be falsy.
    */
-  test('I3: browser_go_forward returns "Navigated forward" after going back', async () => {
+  test('I3: browser_traverse_history (forward) returns "Navigated forward" after going back', async () => {
     // Arrange – establish a complete two-entry history so I3 is independent of I2.
     // Navigate test-page → second-page → go_back, leaving second-page one step forward.
     await client.callTool({
@@ -152,12 +152,15 @@ describe("Navigation tools: browser_navigate, browser_go_back, browser_go_forwar
       name: "browser_navigate",
       arguments: { url: secondPageUrl },
     });
-    await client.callTool({ name: "browser_go_back", arguments: {} });
+    await client.callTool({
+      name: "browser_traverse_history",
+      arguments: { direction: "back" },
+    });
 
     // Act
     const result = await client.callTool({
-      name: "browser_go_forward",
-      arguments: {},
+      name: "browser_traverse_history",
+      arguments: { direction: "forward" },
     });
 
     // Assert

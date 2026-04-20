@@ -361,9 +361,9 @@ export function registerTools(
 
   // ─── go_back ─────────────────────────────────────────────────────────────────
   server.registerTool(
-    "browser_navigate_history",
+    "browser_traverse_history",
     {
-      description: "Navigate back in the browser history.",
+      description: "Move forwards or backwards through the browser history.",
       inputSchema: {
         direction: z
           .enum(["back", "forward"])

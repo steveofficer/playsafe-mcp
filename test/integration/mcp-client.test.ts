@@ -25,7 +25,7 @@ import { startMcpClient, type McpTestClient } from "../helpers/mcp-client";
 const DIST_INDEX = path.resolve(__dirname, "../../dist/index.js");
 
 /** How many tools are expected to be registered by the server. */
-const EXPECTED_TOOL_COUNT = 12;
+const EXPECTED_TOOL_COUNT = 11;
 
 // ---------------------------------------------------------------------------
 // Suite-level pre-condition guard
