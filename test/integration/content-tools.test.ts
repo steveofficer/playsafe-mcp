@@ -19,9 +19,9 @@
  *                                   "admin-panel" (masking is OFF)
  */
 
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { startServer, TestServer } from '../helpers/http-server';
-import { startMcpClient, McpTestClient } from '../helpers/mcp-client';
+import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { startServer, type TestServer } from "../helpers/http-server";
+import { startMcpClient, type McpTestClient } from "../helpers/mcp-client";
 
 // ---------------------------------------------------------------------------
 // Global timeout – all tests in this file may take up to 30 s
@@ -52,7 +52,10 @@ beforeAll(async () => {
   testPageUrl = `http://127.0.0.1:${httpServer.port}/test-page.html`;
 
   // Navigate to the test page so the browser is ready for all content tests.
-  await client.callTool({ name: 'browser_navigate', arguments: { url: testPageUrl } });
+  await client.callTool({
+    name: "browser_navigate",
+    arguments: { url: testPageUrl },
+  });
 });
 
 afterAll(async () => {
@@ -65,7 +68,7 @@ afterAll(async () => {
 // I5 – browser_screenshot returns a PNG image
 // ---------------------------------------------------------------------------
 
-describe('I5: browser_screenshot returns a PNG image', () => {
+describe("I5: browser_screenshot returns a PNG image", () => {
   /**
    * I5: Taking a screenshot must succeed and return a single content item
    * with type "image", mimeType "image/png", and a non-empty base64-encoded
@@ -76,15 +79,24 @@ describe('I5: browser_screenshot returns a PNG image', () => {
    */
   test('I5: content[0].type is "image", mimeType is "image/png", and data is non-empty', async () => {
     // Act
-    const result = await client.callTool({ name: 'browser_screenshot', arguments: {} });
+    const result = await client.callTool({
+      name: "browser_screenshot",
+      arguments: {},
+    });
 
     // Assert – cast to the image content shape
-    const item = (result.content as Array<{ type: string; data?: string; mimeType?: string }>)[0];
+    const item = (
+      result.content as Array<{
+        type: string;
+        data?: string;
+        mimeType?: string;
+      }>
+    )[0];
 
     expect(result.isError).toBeFalsy();
-    expect(item.type).toBe('image');
-    expect(item.mimeType).toBe('image/png');
-    expect(typeof item.data).toBe('string');
+    expect(item.type).toBe("image");
+    expect(item.mimeType).toBe("image/png");
+    expect(typeof item.data).toBe("string");
     expect((item.data as string).length).toBeGreaterThan(0);
   });
 });
@@ -93,7 +105,7 @@ describe('I5: browser_screenshot returns a PNG image', () => {
 // I6 – browser_snapshot returns valid JSON containing "Login"
 // ---------------------------------------------------------------------------
 
-describe('I6: browser_snapshot returns valid JSON containing page content', () => {
+describe("I6: browser_snapshot returns valid JSON containing page content", () => {
   /**
    * I6: The snapshot must return a text content item whose value is valid JSON.
    * Parsing it must not throw and must yield a non-null value.  Because the
@@ -105,10 +117,14 @@ describe('I6: browser_snapshot returns valid JSON containing page content', () =
    */
   test('I6: response text parses as non-null JSON and contains "Login"', async () => {
     // Act
-    const result = await client.callTool({ name: 'browser_snapshot', arguments: {} });
+    const result = await client.callTool({
+      name: "browser_snapshot",
+      arguments: {},
+    });
 
     // Arrange – extract the raw text
-    const rawText = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const rawText = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
 
     // Assert – must be valid, non-null JSON
     let parsed: unknown;
@@ -118,7 +134,7 @@ describe('I6: browser_snapshot returns valid JSON containing page content', () =
     expect(parsed).not.toBeNull();
 
     // Assert – the login button's label must be present in the snapshot
-    expect(rawText).toContain('Login');
+    expect(rawText).toContain("Login");
   });
 });
 
@@ -126,7 +142,7 @@ describe('I6: browser_snapshot returns valid JSON containing page content', () =
 // I7 – browser_get_page_content returns unmasked HTML
 // ---------------------------------------------------------------------------
 
-describe('I7: browser_get_page_content returns full HTML with no masking applied', () => {
+describe("I7: browser_get_page_content returns full HTML with no masking applied", () => {
   /**
    * I7: With no mask arguments the returned HTML must expose every element on
    * the page.  Specifically:
@@ -141,25 +157,33 @@ describe('I7: browser_get_page_content returns full HTML with no masking applied
    */
   test('I7: page HTML contains "dangerous-btn" when masking is off', async () => {
     // Act
-    const result = await client.callTool({ name: 'browser_get_page_content', arguments: {} });
+    const result = await client.callTool({
+      name: "browser_get_page_content",
+      arguments: {},
+    });
 
     // Arrange
-    const html = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const html = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
 
     // Assert
     expect(result.isError).toBeFalsy();
-    expect(html).toContain('dangerous-btn');
+    expect(html).toContain("dangerous-btn");
   });
 
   test('I7: page HTML contains "admin-panel" when masking is off', async () => {
     // Act
-    const result = await client.callTool({ name: 'browser_get_page_content', arguments: {} });
+    const result = await client.callTool({
+      name: "browser_get_page_content",
+      arguments: {},
+    });
 
     // Arrange
-    const html = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const html = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
 
     // Assert
     expect(result.isError).toBeFalsy();
-    expect(html).toContain('admin-panel');
+    expect(html).toContain("admin-panel");
   });
 });

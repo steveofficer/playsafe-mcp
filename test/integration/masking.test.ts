@@ -8,9 +8,9 @@
  * Test IDs M1–M14 map 1-to-1 to the acceptance criteria table.
  */
 
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { startServer, TestServer } from '../helpers/http-server';
-import { startMcpClient, McpTestClient } from '../helpers/mcp-client';
+import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { startServer, type TestServer } from "../helpers/http-server";
+import { startMcpClient, type McpTestClient } from "../helpers/mcp-client";
 
 // ---------------------------------------------------------------------------
 // Global timeout – all tests in this file may take up to 30 s
@@ -34,7 +34,7 @@ beforeAll(async () => {
   // Start the static file server and the MCP client in parallel.
   [httpServer, mcpHandle] = await Promise.all([
     startServer(),
-    startMcpClient(['.dangerous-btn', '#admin-panel']),
+    startMcpClient([".dangerous-btn", "#admin-panel"]),
   ]);
 
   client = mcpHandle.client;
@@ -43,7 +43,10 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   // Reset to a fresh page state before every test.
-  await client.callTool({ name: 'browser_navigate', arguments: { url: testPageUrl } });
+  await client.callTool({
+    name: "browser_navigate",
+    arguments: { url: testPageUrl },
+  });
 });
 
 afterAll(async () => {
@@ -56,7 +59,7 @@ afterAll(async () => {
 // M1 – browser_click on a directly masked selector is blocked
 // ---------------------------------------------------------------------------
 
-describe('M1: browser_click on a directly masked selector', () => {
+describe("M1: browser_click on a directly masked selector", () => {
   /**
    * M1: Clicking `.dangerous-btn` (which matches the `--mask ".dangerous-btn"`
    * argument) must be rejected with isError: true and a message that contains
@@ -64,16 +67,19 @@ describe('M1: browser_click on a directly masked selector', () => {
    */
   test('M1: returns isError:true and "masked for safety" when clicking .dangerous-btn', async () => {
     // Arrange
-    const selector = '.dangerous-btn';
+    const selector = ".dangerous-btn";
 
     // Act
-    const result = await client.callTool({ name: 'browser_click', arguments: { selector } });
+    const result = await client.callTool({
+      name: "browser_click",
+      arguments: { selector },
+    });
 
     // Assert
     expect(result.isError).toBe(true);
-    expect((result.content as Array<{ type: string; text: string }>)[0].text).toContain(
-      'masked for safety'
-    );
+    expect(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    ).toContain("masked for safety");
   });
 });
 
@@ -81,23 +87,26 @@ describe('M1: browser_click on a directly masked selector', () => {
 // M2 – browser_click on a descendant of a masked container is blocked
 // ---------------------------------------------------------------------------
 
-describe('M2: browser_click on a descendant of a masked container', () => {
+describe("M2: browser_click on a descendant of a masked container", () => {
   /**
    * M2: `.admin-action` lives inside `#admin-panel`, which is masked.
    * Clicking it must be rejected with isError: true (descendant blocking).
    */
   test('M2: returns isError:true and "masked for safety" when clicking .admin-action inside #admin-panel', async () => {
     // Arrange
-    const selector = '.admin-action';
+    const selector = ".admin-action";
 
     // Act
-    const result = await client.callTool({ name: 'browser_click', arguments: { selector } });
+    const result = await client.callTool({
+      name: "browser_click",
+      arguments: { selector },
+    });
 
     // Assert
     expect(result.isError).toBe(true);
-    expect((result.content as Array<{ type: string; text: string }>)[0].text).toContain(
-      'masked for safety'
-    );
+    expect(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    ).toContain("masked for safety");
   });
 });
 
@@ -105,23 +114,26 @@ describe('M2: browser_click on a descendant of a masked container', () => {
 // M3 – browser_click on an unmasked element succeeds
 // ---------------------------------------------------------------------------
 
-describe('M3: browser_click on an unmasked element', () => {
+describe("M3: browser_click on an unmasked element", () => {
   /**
    * M3: `#login-btn` is not masked. Clicking it must succeed (isError falsy)
    * and return a message that contains "Clicked element".
    */
   test('M3: isError is falsy and text contains "Clicked element" when clicking #login-btn', async () => {
     // Arrange
-    const selector = '#login-btn';
+    const selector = "#login-btn";
 
     // Act
-    const result = await client.callTool({ name: 'browser_click', arguments: { selector } });
+    const result = await client.callTool({
+      name: "browser_click",
+      arguments: { selector },
+    });
 
     // Assert
     expect(result.isError).toBeFalsy();
-    expect((result.content as Array<{ type: string; text: string }>)[0].text).toContain(
-      'Clicked element'
-    );
+    expect(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    ).toContain("Clicked element");
   });
 });
 
@@ -129,19 +141,19 @@ describe('M3: browser_click on an unmasked element', () => {
 // M5 – browser_fill into a masked descendant is blocked
 // ---------------------------------------------------------------------------
 
-describe('M5: browser_fill into a masked descendant', () => {
+describe("M5: browser_fill into a masked descendant", () => {
   /**
    * M5: `#admin-input` is inside `#admin-panel` (masked). Filling it must
    * return isError: true.
    */
-  test('M5: returns isError:true when filling #admin-input inside #admin-panel', async () => {
+  test("M5: returns isError:true when filling #admin-input inside #admin-panel", async () => {
     // Arrange
-    const selector = '#admin-input';
+    const selector = "#admin-input";
 
     // Act
     const result = await client.callTool({
-      name: 'browser_fill',
-      arguments: { selector, value: 'test' },
+      name: "browser_fill",
+      arguments: { selector, value: "test" },
     });
 
     // Assert
@@ -153,19 +165,19 @@ describe('M5: browser_fill into a masked descendant', () => {
 // M6 – browser_select_option on a masked descendant is blocked
 // ---------------------------------------------------------------------------
 
-describe('M6: browser_select_option on a masked descendant', () => {
+describe("M6: browser_select_option on a masked descendant", () => {
   /**
    * M6: `#admin-select` is inside `#admin-panel` (masked). Selecting an option
    * must return isError: true.
    */
-  test('M6: returns isError:true when selecting option in #admin-select inside #admin-panel', async () => {
+  test("M6: returns isError:true when selecting option in #admin-select inside #admin-panel", async () => {
     // Arrange
-    const selector = '#admin-select';
+    const selector = "#admin-select";
 
     // Act
     const result = await client.callTool({
-      name: 'browser_select_option',
-      arguments: { selector, value: 'edit' },
+      name: "browser_select_option",
+      arguments: { selector, value: "edit" },
     });
 
     // Assert
@@ -177,17 +189,20 @@ describe('M6: browser_select_option on a masked descendant', () => {
 // M7 – browser_hover on a directly masked selector is blocked
 // ---------------------------------------------------------------------------
 
-describe('M7: browser_hover on a directly masked selector', () => {
+describe("M7: browser_hover on a directly masked selector", () => {
   /**
    * M7: Hovering over `.dangerous-btn` (directly masked) must return
    * isError: true.
    */
-  test('M7: returns isError:true when hovering over .dangerous-btn', async () => {
+  test("M7: returns isError:true when hovering over .dangerous-btn", async () => {
     // Arrange
-    const selector = '.dangerous-btn';
+    const selector = ".dangerous-btn";
 
     // Act
-    const result = await client.callTool({ name: 'browser_hover', arguments: { selector } });
+    const result = await client.callTool({
+      name: "browser_hover",
+      arguments: { selector },
+    });
 
     // Assert
     expect(result.isError).toBe(true);
@@ -198,7 +213,7 @@ describe('M7: browser_hover on a directly masked selector', () => {
 // M8 – browser_snapshot excludes masked elements
 // ---------------------------------------------------------------------------
 
-describe('M8: browser_snapshot excludes masked elements', () => {
+describe("M8: browser_snapshot excludes masked elements", () => {
   /**
    * M8: The structured snapshot must not expose any text or labels belonging
    * to masked elements. In particular "Danger" (the button text for
@@ -207,10 +222,14 @@ describe('M8: browser_snapshot excludes masked elements', () => {
    */
   test('M8: snapshot JSON does not contain "Danger" or "Admin Action"', async () => {
     // Act
-    const result = await client.callTool({ name: 'browser_snapshot', arguments: {} });
+    const result = await client.callTool({
+      name: "browser_snapshot",
+      arguments: {},
+    });
 
     // Arrange – parse and re-stringify the snapshot to normalise whitespace
-    const rawText = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const rawText = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
     const parsed: unknown = JSON.parse(rawText);
     const serialised = JSON.stringify(parsed);
 
@@ -227,7 +246,7 @@ describe('M8: browser_snapshot excludes masked elements', () => {
 // M9 – browser_get_page_content excludes masked elements
 // ---------------------------------------------------------------------------
 
-describe('M9: browser_get_page_content excludes masked elements', () => {
+describe("M9: browser_get_page_content excludes masked elements", () => {
   /**
    * M9: The returned HTML must not include markup for the masked elements.
    * We assert that the masked button/class and panel/id element markup is absent,
@@ -235,13 +254,17 @@ describe('M9: browser_get_page_content excludes masked elements', () => {
    */
   test('M9: page HTML does not contain "dangerous-btn" or "admin-panel"', async () => {
     // Act
-    const result = await client.callTool({ name: 'browser_get_page_content', arguments: {} });
+    const result = await client.callTool({
+      name: "browser_get_page_content",
+      arguments: {},
+    });
 
     // Assert – verify the tool call succeeded before inspecting content
     expect(result.isError).toBeFalsy();
 
-    const html = (result.content as Array<{ type: string; text: string }>)[0].text;
-    expect((result.content as Array<{ type: string }>)[0].type).toBe('text');
+    const html = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
+    expect((result.content as Array<{ type: string }>)[0].type).toBe("text");
 
     // Assert – check that the actual element markup is absent. The masked elements
     // are removed from the DOM clone, so their element tags should not appear.
@@ -256,18 +279,21 @@ describe('M9: browser_get_page_content excludes masked elements', () => {
 // M10 – browser_screenshot returns an image even with masks active
 // ---------------------------------------------------------------------------
 
-describe('M10: browser_screenshot returns an image', () => {
+describe("M10: browser_screenshot returns an image", () => {
   /**
    * M10: Screenshots should still work when masks are configured. The response
    * must not be an error and the first content item must have type "image".
    */
   test('M10: isError is falsy and content[0].type is "image"', async () => {
     // Act
-    const result = await client.callTool({ name: 'browser_screenshot', arguments: {} });
+    const result = await client.callTool({
+      name: "browser_screenshot",
+      arguments: {},
+    });
 
     // Assert
     expect(result.isError).toBeFalsy();
-    expect((result.content as Array<{ type: string }>)[0].type).toBe('image');
+    expect((result.content as Array<{ type: string }>)[0].type).toBe("image");
   });
 });
 
@@ -275,7 +301,7 @@ describe('M10: browser_screenshot returns an image', () => {
 // M11 – browser_wait_for_selector on an exact masked selector is blocked
 // ---------------------------------------------------------------------------
 
-describe('M11: browser_wait_for_selector on an exact masked selector', () => {
+describe("M11: browser_wait_for_selector on an exact masked selector", () => {
   /**
    * M11: When the selector passed to browser_wait_for_selector exactly matches
    * a masked selector (`.dangerous-btn`), the tool must return isError: true
@@ -283,19 +309,19 @@ describe('M11: browser_wait_for_selector on an exact masked selector', () => {
    */
   test('M11: returns isError:true and "masked for safety" for .dangerous-btn', async () => {
     // Arrange
-    const selector = '.dangerous-btn';
+    const selector = ".dangerous-btn";
 
     // Act
     const result = await client.callTool({
-      name: 'browser_wait_for_selector',
+      name: "browser_wait_for_selector",
       arguments: { selector },
     });
 
     // Assert
     expect(result.isError).toBe(true);
-    expect((result.content as Array<{ type: string; text: string }>)[0].text).toContain(
-      'masked for safety'
-    );
+    expect(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    ).toContain("masked for safety");
   });
 });
 
@@ -303,26 +329,26 @@ describe('M11: browser_wait_for_selector on an exact masked selector', () => {
 // M12 – browser_wait_for_selector on an unmasked selector succeeds
 // ---------------------------------------------------------------------------
 
-describe('M12: browser_wait_for_selector on an unmasked selector', () => {
+describe("M12: browser_wait_for_selector on an unmasked selector", () => {
   /**
    * M12: `#login-btn` is not masked. Waiting for it must succeed (isError falsy)
    * and return a message containing "Element appeared".
    */
   test('M12: isError is falsy and text contains "Element appeared" for #login-btn', async () => {
     // Arrange
-    const selector = '#login-btn';
+    const selector = "#login-btn";
 
     // Act
     const result = await client.callTool({
-      name: 'browser_wait_for_selector',
+      name: "browser_wait_for_selector",
       arguments: { selector },
     });
 
     // Assert
     expect(result.isError).toBeFalsy();
-    expect((result.content as Array<{ type: string; text: string }>)[0].text).toContain(
-      'Element appeared'
-    );
+    expect(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    ).toContain("Element appeared");
   });
 });
 
@@ -330,18 +356,18 @@ describe('M12: browser_wait_for_selector on an unmasked selector', () => {
 // M14 – browser_fill into an unmasked input succeeds
 // ---------------------------------------------------------------------------
 
-describe('M14: browser_fill into an unmasked input', () => {
+describe("M14: browser_fill into an unmasked input", () => {
   /**
    * M14: `#username` is not masked. Filling it must succeed (isError falsy).
    */
-  test('M14: isError is falsy when filling #username', async () => {
+  test("M14: isError is falsy when filling #username", async () => {
     // Arrange
-    const selector = '#username';
+    const selector = "#username";
 
     // Act
     const result = await client.callTool({
-      name: 'browser_fill',
-      arguments: { selector, value: 'filleduser' },
+      name: "browser_fill",
+      arguments: { selector, value: "filleduser" },
     });
 
     // Assert

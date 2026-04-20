@@ -1,4 +1,4 @@
-import { Page } from 'playwright';
+import type { Page } from "playwright";
 
 /**
  * Checks whether the given target selector matches any masked selector on the page.
@@ -7,7 +7,7 @@ import { Page } from 'playwright';
 export async function assertNotMasked(
   page: Page,
   targetSelector: string,
-  maskedSelectors: string[]
+  maskedSelectors: string[],
 ): Promise<void> {
   if (maskedSelectors.length === 0) return;
 
@@ -32,12 +32,12 @@ export async function assertNotMasked(
       }
       return false;
     },
-    { target: targetSelector, masked: maskedSelectors }
+    { target: targetSelector, masked: maskedSelectors },
   );
 
   if (isMasked) {
     throw new Error(
-      `Interaction blocked: the element matching "${targetSelector}" is masked for safety.`
+      `Interaction blocked: the element matching "${targetSelector}" is masked for safety.`,
     );
   }
 }
@@ -48,7 +48,7 @@ export async function assertNotMasked(
  */
 export async function hideMaskedElements(
   page: Page,
-  maskedSelectors: string[]
+  maskedSelectors: string[],
 ): Promise<() => Promise<void>> {
   if (maskedSelectors.length === 0) {
     return async () => {};
@@ -56,8 +56,11 @@ export async function hideMaskedElements(
 
   const validSelectors = maskedSelectors.filter((sel) => !/{|}/.test(sel));
   const css = validSelectors
-    .map((sel) => `${sel} { visibility: hidden !important; pointer-events: none !important; }`)
-    .join('\n');
+    .map(
+      (sel) =>
+        `${sel} { visibility: hidden !important; pointer-events: none !important; }`,
+    )
+    .join("\n");
 
   const styleHandle = await page.addStyleTag({ content: css });
 
@@ -75,7 +78,7 @@ export async function hideMaskedElements(
  */
 export async function getFilteredContent(
   page: Page,
-  maskedSelectors: string[]
+  maskedSelectors: string[],
 ): Promise<string> {
   if (maskedSelectors.length === 0) {
     return page.content();
@@ -86,7 +89,7 @@ export async function getFilteredContent(
     const clone = document.documentElement.cloneNode(true) as HTMLElement;
     for (const sel of masked) {
       try {
-        clone.querySelectorAll(sel).forEach((el) => el.remove());
+        clone.querySelectorAll(sel).forEach((el) => { el.remove(); });
       } catch {
         // ignore invalid selectors
       }

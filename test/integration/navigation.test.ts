@@ -19,9 +19,9 @@
  * in declaration order, which gives us the required sequencing guarantee.
  */
 
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { startServer, TestServer } from '../helpers/http-server';
-import { startMcpClient, McpTestClient } from '../helpers/mcp-client';
+import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { startServer, type TestServer } from "../helpers/http-server";
+import { startMcpClient, type McpTestClient } from "../helpers/mcp-client";
 
 // ---------------------------------------------------------------------------
 // Global timeout – all tests in this file may take up to 30 s
@@ -66,7 +66,7 @@ afterAll(async () => {
 // Navigation tool tests – I1 through I4 (sequential, shared browser state)
 // ---------------------------------------------------------------------------
 
-describe('Navigation tools: browser_navigate, browser_go_back, browser_go_forward, browser_close', () => {
+describe("Navigation tools: browser_navigate, browser_go_back, browser_go_forward, browser_close", () => {
   // -------------------------------------------------------------------------
   // I1 – browser_navigate to test-page.html
   // -------------------------------------------------------------------------
@@ -84,13 +84,17 @@ describe('Navigation tools: browser_navigate, browser_go_back, browser_go_forwar
     const url = testPageUrl;
 
     // Act
-    const result = await client.callTool({ name: 'browser_navigate', arguments: { url } });
+    const result = await client.callTool({
+      name: "browser_navigate",
+      arguments: { url },
+    });
 
     // Assert
-    const text = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const text = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
     expect(result.isError).toBeFalsy();
     expect(text).toContain(url);
-    expect(text).toContain('Test Page');
+    expect(text).toContain("Test Page");
   });
 
   // -------------------------------------------------------------------------
@@ -106,16 +110,26 @@ describe('Navigation tools: browser_navigate, browser_go_back, browser_go_forwar
    */
   test('I2: browser_go_back returns "Navigated back" after navigating to a second page', async () => {
     // Arrange – build up a two-entry history: test-page → second-page
-    await client.callTool({ name: 'browser_navigate', arguments: { url: testPageUrl } });
-    await client.callTool({ name: 'browser_navigate', arguments: { url: secondPageUrl } });
+    await client.callTool({
+      name: "browser_navigate",
+      arguments: { url: testPageUrl },
+    });
+    await client.callTool({
+      name: "browser_navigate",
+      arguments: { url: secondPageUrl },
+    });
 
     // Act
-    const result = await client.callTool({ name: 'browser_go_back', arguments: {} });
+    const result = await client.callTool({
+      name: "browser_go_back",
+      arguments: {},
+    });
 
     // Assert
-    const text = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const text = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
     expect(result.isError).toBeFalsy();
-    expect(text).toContain('Navigated back');
+    expect(text).toContain("Navigated back");
   });
 
   // -------------------------------------------------------------------------
@@ -130,17 +144,27 @@ describe('Navigation tools: browser_navigate, browser_go_back, browser_go_forwar
   test('I3: browser_go_forward returns "Navigated forward" after going back', async () => {
     // Arrange – establish a complete two-entry history so I3 is independent of I2.
     // Navigate test-page → second-page → go_back, leaving second-page one step forward.
-    await client.callTool({ name: 'browser_navigate', arguments: { url: testPageUrl } });
-    await client.callTool({ name: 'browser_navigate', arguments: { url: secondPageUrl } });
-    await client.callTool({ name: 'browser_go_back', arguments: {} });
+    await client.callTool({
+      name: "browser_navigate",
+      arguments: { url: testPageUrl },
+    });
+    await client.callTool({
+      name: "browser_navigate",
+      arguments: { url: secondPageUrl },
+    });
+    await client.callTool({ name: "browser_go_back", arguments: {} });
 
     // Act
-    const result = await client.callTool({ name: 'browser_go_forward', arguments: {} });
+    const result = await client.callTool({
+      name: "browser_go_forward",
+      arguments: {},
+    });
 
     // Assert
-    const text = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const text = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
     expect(result.isError).toBeFalsy();
-    expect(text).toContain('Navigated forward');
+    expect(text).toContain("Navigated forward");
   });
 
   // -------------------------------------------------------------------------
@@ -154,11 +178,15 @@ describe('Navigation tools: browser_navigate, browser_go_back, browser_go_forwar
    */
   test('I4: browser_close returns "Browser closed" and isError is falsy', async () => {
     // Act
-    const result = await client.callTool({ name: 'browser_close', arguments: {} });
+    const result = await client.callTool({
+      name: "browser_close",
+      arguments: {},
+    });
 
     // Assert
-    const text = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const text = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
     expect(result.isError).toBeFalsy();
-    expect(text).toContain('Browser closed');
+    expect(text).toContain("Browser closed");
   });
 });
