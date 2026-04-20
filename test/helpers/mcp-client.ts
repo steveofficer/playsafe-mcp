@@ -7,6 +7,7 @@
  */
 
 import * as path from 'path';
+import * as fs from 'fs';
 import * as childProcess from 'child_process';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
@@ -19,6 +20,8 @@ const SIGKILL_TIMEOUT_MS = 5_000;
 
 export interface McpTestClient {
   client: Client;
+  /** PID of the spawned server child process. */
+  pid: number;
   disconnect: () => Promise<void>;
 }
 
@@ -80,6 +83,15 @@ async function killAndWait(
 }
 
 export async function startMcpClient(maskSelectors?: string[]): Promise<McpTestClient> {
+  // Fast-fail if the build artefact is missing – produces a clear error
+  // regardless of which test file calls this helper first.
+  if (!fs.existsSync(DIST_INDEX)) {
+    throw new Error(
+      `dist/index.js not found at ${DIST_INDEX}. ` +
+        'Run "npm run build" before executing the integration suite.'
+    );
+  }
+
   // Convert mask selectors to ['--mask', selector] pairs
   const maskArgs: string[] = (maskSelectors ?? []).flatMap((selector) => ['--mask', selector]);
 
@@ -105,12 +117,14 @@ export async function startMcpClient(maskSelectors?: string[]): Promise<McpTestC
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const serverProc: childProcess.ChildProcess | undefined = (transport as any)._process;
 
-  if (!serverProc) {
+  if (!serverProc || serverProc.pid === undefined) {
     throw new Error(
       'StdioClientTransport._process is no longer accessible. ' +
       'Update mcp-client.ts to match the current SDK API.'
     );
   }
+
+  const pid = serverProc.pid;
 
   // Emergency cleanup: if a test throws before disconnect() is called, kill
   // the server when the host process exits to prevent orphan processes.
@@ -136,5 +150,5 @@ export async function startMcpClient(maskSelectors?: string[]): Promise<McpTestC
     }
   };
 
-  return { client, disconnect };
+  return { client, pid, disconnect };
 }

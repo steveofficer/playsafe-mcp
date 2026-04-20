@@ -6,7 +6,7 @@
 export function parseMaskedSelectors(argv: string[]): string[] {
   const masked: string[] = [];
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--mask' && i + 1 < argv.length) {
+    if (argv[i] === "--mask" && i + 1 < argv.length) {
       const selector = argv[i + 1].trim();
       if (selector) {
         masked.push(selector);

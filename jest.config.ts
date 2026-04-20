@@ -7,7 +7,7 @@ const config: Config = {
       testMatch: ['<rootDir>/test/unit/**/*.test.ts'],
       preset: 'ts-jest',
       testEnvironment: 'node',
-      testTimeout: 30000,
+      testTimeout: 5000,
       transform: {
         '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'test/tsconfig.json' }],
       },
